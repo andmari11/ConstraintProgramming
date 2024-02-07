@@ -1,0 +1,27 @@
+% Data file
+altura = 10;
+capacidad = [3, 5, 3];
+
+enum Color={azul, rojo, verde};
+
+array[1..altura] of var Color: torre;
+
+%no verdes seguidos
+constraint forall (i in 1..(altura-1)) !(torre[i]= verde /\ torre[i]=verde)
+
+%no más de x de cada color (i color, j altrura de cada torre)
+
+
+var int: contador_azul = sum(i in 1..altura)(bool2int(torre[i] == azul));
+var int: contador_rojo = sum(i in 1..altura)(bool2int(torre[i] == rojo));
+var int: contador_verde = sum(i in 1..altura)(bool2int(torre[i] == verde));
+
+constraint contador_azul<=capacidad[0];
+constraint contador_rojo<=capacidad[1];
+constraint contador_verde<=capacidad[2];
+
+solve satisfy;
+output [ "SOL: \n" ];
+
+
+
