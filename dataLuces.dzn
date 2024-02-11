@@ -1,0 +1,5 @@
+nLuces=5;
+nColores=3;
+consumoMax=17;
+
+colorConsumo = [5, 4, 3];
