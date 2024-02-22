@@ -33,14 +33,15 @@ constraint forall(i in 2..nViajes)(orilla1[i-1,2]-orilla1[i,2]=movimientos[i,2] 
 
 %max dos viajeros en barca                                   
 constraint forall(i in 2..nViajes)(abs(movimientos[i,1]+movimientos[i,2])>0 /\
-                                   abs(movimientos[i,1]+movimientos[i,2])<=2/\
-                                   abs(movimientos[i,1])<=2/\
-                                   abs(movimientos[i,2])<=2
+                                   abs(movimientos[i,1]+movimientos[i,2])<=2
+%                                    /\
+%                                    abs(movimientos[i,1])<=2/\
+%                                    abs(movimientos[i,2])<=2
                                    );
-%viaje de ida
+%viaje de ida tiene q ser positivo
 constraint forall(i in 2..nViajes where i mod 2=0)((movimientos[i,1])>=0 /\
                                                    (movimientos[i,2])>=0);
-%viaje de vuelta                                                   
+%viaje de vuelta tiene q ser negativo                                                 
 constraint forall(i in 2..nViajes where i mod 2=1)((movimientos[i,1])<=0 /\
                                                    (movimientos[i,2])<=0);
 solve satisfy;
