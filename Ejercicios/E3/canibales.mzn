@@ -2,32 +2,21 @@ int: nSalvajes=3;
 
 int: nMisioneros=3;
 
-
-
 int: nViajes=12;
 
 
-
 %estado final
-
 var 1..nViajes: estadoFinal;
 
-
-
 %orilla salvajes, misioneros
-
 array[1..nViajes, 1..2] of var 0..3:orilla1;
 
-
-
 %orilla salvajes, misioneros
-
 array[1..nViajes, 1..2] of var 0..3:orilla2;
 
 
 
 %historial de movimientos
-
 array[2..nViajes,1..2] of var -3..3:movimientos;
 
 
