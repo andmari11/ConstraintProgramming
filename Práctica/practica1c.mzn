@@ -2,17 +2,32 @@ int: T;%trabajadores
 int: D;%dias laborables
 int: A;%afines minimos
 
+constraint assert (T > 0, "T mayor que cero");
+constraint assert (D > 0, "D mayor que cero");
+constraint assert (A >= 0, "A mayor que cero");
+
+
 set of 1..T: R;
 
 %trabajadores por turno
 int:N1;
+constraint assert (N1 >= 0, "N1 mayor que cero");
+
 int:N2;
+constraint assert (N2 >= 0, "N2 mayor que cero");
+
 int:N3;
+constraint assert (N3 >= 0, "N3 mayor que cero");
 
 %max mins
 int:MaxDT;
+constraint assert (MaxDT >= 0, "MaxDT mayor que cero");
+
 int:MaxDL;
+constraint assert (MaxDL >= 0, "MaxDL mayor que cero");
+
 int:MinDT;
+constraint assert (MinDT >= 0, "MinDT mayor que cero");
 
 array [1..T, 1..T] of bool: afines;
 %2. Un trabajador solo puede estar en un turno cada día.
