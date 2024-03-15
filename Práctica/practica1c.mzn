@@ -57,10 +57,11 @@ array [1..D, 1..T] of 0..3: turnos_no;
 %minimizando el número de veces que incumplimos la petición
 solve minimize (sum(t in 1..T,d in 1..D)(
   
-  
+    %penalizamos de forma exponencial los incumplimientos repetidamente en un trabajador
     (turnos[d,t]=turnos_no[d,t])*2^sum(dd in 1..d-1)(turnos[dd,t]=turnos_no[dd,t])
   
   
 ));
-
-%output ["Peticiones denegadas: \(sum(t in 1..T,d in 1..D)(turnos[d,t]=turnos_no[d,t]))"];
+output["Turnos:\n[|"];
+output [ show(turnos[i, j]) ++ if j = T then "\n |" else ", " endif | i in 1..D, j in 1..T ];
+output ["];\nPeticiones denegadas: \(sum(t in 1..T,d in 1..D)(turnos[d,t]=turnos_no[d,t]))"];
