@@ -1,0 +1,28 @@
+D = 7;
+T = 5;
+N1 = 2;
+N2 = 2;
+N3 = 1;
+MaxDT = 7;
+MaxDL = 1;
+MinDT = 2;
+A = 0;
+afines =
+[| true, false, false, true, false ,
+ | false, true, false, false, true ,
+ | false, false, true, false, false,
+ | true, false, false, true, false ,
+ | false, true, false, false, true |];
+R = {1,2,3,4};
+
+vacaciones = [| true, true, true, true, true
+             | true, true, true, true, true
+             | true, true, true, true, true
+             | true, true, true, true, true
+             | true, true, true, true, true
+             | true, true, true, true, true
+             | true, true, true, true, true
+             |];
+
+
+
