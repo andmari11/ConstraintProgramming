@@ -6,15 +6,16 @@ import sys
 # nColores : colores disponibles
 # consumo  : consumo max
 
-longitud = int(input())
-nColores = int(input())
-consumoMax = int(input())
+inputParam=input().split()
+longitud = int(inputParam[0])
+nColores = int(inputParam[1])
+consumoMax = int(inputParam[2])
 
-coloresInput=input().split()
+inputParam=input().split()
 colores=[]
 
 for i in range(nColores):
-    colores.append(int(coloresInput))
+    colores.append(int(inputParam[i]))
 
 def addsum(a):
     if len(a) == 0:
@@ -24,7 +25,12 @@ def addsum(a):
     else :
         x = a.pop()
         return x + addsum(a) 
-    
+
+def bool2int(b):
+    return If(b, 1, 0)
+
+
+
 ################################
 # generamos un fichero smtlib2
 ################################
@@ -38,7 +44,51 @@ for i in range(longitud):
     sol.append(Int(i))
 # fin declaración
 
+#sólo se utilizan los colores definidos
 for i in range(longitud): 
     s.add(0 <= sol[i])
-    s.add(sol[i] <= nColores)
+    s.add(sol[i] < nColores)
 
+#no dos luces seguidas del mismo color
+for i in range(1,longitud): 
+    l1=sol[i-1]
+    l2=sol[i]
+    s.add(Not(l1==l2))
+
+# la suma de las luces en cualquier punto
+#de un color no supere en mas de una unidad la suma de las luces de
+#todos los demas colores
+
+# for color in range(nColores):
+#     sumaColor=0
+#     sumaOthers=0
+#     for i in range(longitud): 
+#         if color==sol[i]:
+#             sumaColor+=1
+#         else:
+#             sumaOthers+=1
+#         s.add(Or(Not(sumaOthers>=sumaColor+1),Not(sumaColor>=sumaOthers+1)))
+
+for color in range(nColores):
+    sumaColor=[]
+    sumaOthers=[]
+    for i in range(longitud): 
+        sumaColor.append(bool2int(color==sol[i]))
+        sumaOthers.append(bool2int(color!=sol[i]))
+        s.add(Or(Not(addsum(sumaOthers)>=addsum(sumaColor)+1), Not(addsum(sumaColor)>=addsum(sumaOthers)+1)))
+
+#consumo
+
+suma=0
+for i in range(longitud): 
+    suma+=colores[int(sol[i])]
+s.add(suma<=consumoMax)
+
+
+
+print(s.check())
+if s.check() == z3.sat:
+    for i in reversed(range(longitud)):
+        print(s.model().eval(sol[i]),  end=' ')
+
+exit(0)
