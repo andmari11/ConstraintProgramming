@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-
+from z3 import *
 import sys
 
 # altura : altura de la torre
@@ -11,93 +11,67 @@ disp1 = input().split()
 disp = []
 for i in range(len(disp1)):
     disp.append(int(disp1[i]))
+coste = eval(input())
+max_coste = int(input())
 
-def torre (i):
+def ntorre (i):
     return "torre_"+str(i)
 
-def setlogic(l):
-    return "(set-logic "+ l +")"
-
-def intvar(v):
-    return "(declare-fun "+v+" () Int)"
+def costtorre (i):
+    return "ctorre_"+str(i)
 
 def bool2int(b):
-    return "(ite "+b+" 1 0 )"
-
-def addand(a1,a2):
-    return "(and "+a1+" "+a2+" )"
-def addor(a1,a2):
-    return "(or "+a1+" "+a2+" )"
-def addnot(a):
-    return "(not "+a+" )"
+    return If(b, 1, 0)
 
 def addexists(a):
     if len(a) == 0:
-        return "false"
+        return False
     elif len(a) == 1:
         return a[0]
     else :
         x = a.pop()
-        return "(or " + x + " " + addexists(a) + " )" 
-
-def addeq(a1,a2):
-    return "(= "+a1+" "+a2+" )" 
-def addle(a1,a2):
-    return "(<= "+a1+" "+a2+" )" 
-def addge(a1,a2):
-    return "(>= "+a1+" "+a2+" )" 
-def addlt(a1,a2):
-    return "(< "+a1+" "+a2+" )"
-def addgt(a1,a2):
-    return "(> "+a1+" "+a2+" )" 
-
-def addplus(a1,a2):
-    return "(+ "+a1+" "+a2+" )"
-
-def addassert(a):
-    return "(assert "+a+" )"
+        return Or(x,addexists(a)) 
 
 def addsum(a):
     if len(a) == 0:
-        return "0"
+        return 0
     elif len(a) == 1:
         return a[0]
     else :
         x = a.pop()
-        return "(+ " + x + " " + addsum(a) + " )" 
+        return x + addsum(a) 
 
-def checksat():
-    print("(check-sat)")
-def getmodel():
-    print("(get-model)")
-def getvalue(l):
-    print("(get-value " + l + " )")
 
 ################################
 # generamos un fichero smtlib2
 ################################
 
-print("(set-option :produce-models true)")
-print(setlogic("QF_LIA"))
+s = SolverFor("QF_LIA")
+# s = Solver()
 
 #declaración de variables de la solución
+torre = [];
 for i in range(altura):
-    print(intvar(torre(i)))
+    torre.append(Int(ntorre(i)))
 # fin declaración
+
+fcoste = Function('fcoste', IntSort(), IntSort())
+for j in range(3):
+    s.add(fcoste(j) == coste[j])
 
 #constraint forall (i in 0..altura-1) (0 <= torre_i);
 #constraint forall (i in 0..altura-1) (torre_i <= 2);
 for i in range(altura): # es equivalente a range(0,altura)
-    print(addassert(addle("0",torre(i))))
-    print(addassert(addle(torre(i),"2")))
+    s.add(0 <= torre[i])
+    s.add(torre[i] <= 2)
 #end constraint
 
 #No dos verdes consecutivas
 #constraint forall (i in 0..altura-2) (torre_i!=2 \/ torre_i+1!=2);
 for i in range(altura-1):
-    c1 = addnot(addeq(torre(i),"2"))
-    c2 = addnot(addeq(torre(i+1),"2"))
-    print(addassert(addor(c1,c2)))
+    c1 = Not(torre[i] == 2)
+    c2 = Not(torre[i+1] == 2)
+    s.add(Or(c1,c2))
 #fin constraint
 
 #Piezas azules >= Piezas verdes en todo momento
@@ -107,9 +81,9 @@ for i in range(altura):
     suma = []
     sumv = []
     for j in range(i+1):
-        suma.append(bool2int(addeq(torre(j),"0")))
-        sumv.append(bool2int(addeq(torre(j),"2")))
-    print(addassert(addge(addsum(suma),addsum(sumv))))
+        suma.append(bool2int(torre[j] == 0))
+        sumv.append(bool2int(torre[j] == 2))
+    s.add(addsum(suma) >= addsum(sumv))
 #fin constraint
 
 #No mas piezas de las disponibles
@@ -117,8 +91,8 @@ for i in range(altura):
 for c in range(3):
     sumc = []
     for i in range(altura):
-        sumc.append(bool2int(addeq(torre(i),str(c))))
-    print(addassert(addle(addsum(sumc),str(disp[c]))))
+        sumc.append(bool2int(torre[i] == c))
+    s.add(addsum(sumc) <= disp[c])
 #fin constraint
 
 #Piezas rojas >= Piezas azules + Piezas verdes
@@ -128,17 +102,28 @@ for c in range(3):
 #sum (i in 0..altura-1 ) ( bool2int(torre[i]!=Rojo) ) <= altura div 2
 sumc = []
 for i in range(altura):
-    sumc.append(bool2int(addnot(addeq(torre(i),"1"))))
-print(addassert(addle(addsum(sumc),str(altura//2))))
+    sumc.append(bool2int(Not(torre[i] == 1)))
+s.add(addsum(sumc) <= altura//2)
 #fin constraint
+
+#no se supera max_coste
+ct = []
+for i in range(altura):
+    ct.append(fcoste(torre[i]))
+s.add(addsum(ct) <= max_coste)
 
 #Empieza con rojo
 #constraint torre[0] = Rojo;
-print(addassert(addeq(torre(0),"1")))
+s.add(torre[0] == 1)
 
-checksat()
+print(s.check())
 
-#getmodel()
+#print(s.model())
 for i in reversed(range(altura)):
-    getvalue("("+torre(i)+")")
+    print(ntorre(i),s.model().eval(torre[i]))
+
+for i in reversed(range(altura)):
+    print('coste',i,s.model().eval(fcoste(torre[i])))
+
+#print(s.to_smt2())
 exit(0)

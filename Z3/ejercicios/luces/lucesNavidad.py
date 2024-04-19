@@ -17,6 +17,14 @@ colores=[]
 for i in range(nColores):
     colores.append(int(inputParam[i]))
 
+
+def nluz (i):
+    return "luz_"+str(i)
+
+def costluz (i):
+    return "cluz"+str(i)
+
+
 def addsum(a):
     if len(a) == 0:
         return 0
@@ -40,9 +48,18 @@ s = SolverFor("QF_LIA")
 
 #declaración de variables de la solución
 sol = []
+coste = []
+
 for i in range(longitud):
-    sol.append(Int(i))
+    sol.append(Int(nluz(i)))
+    coste.append(Int(costluz(i)))
 # fin declaración
+
+
+for i in range(longitud):
+    for j in range(nColores):
+        s.add(Implies(sol[i]==j, coste[i]==colores[j]))
+
 
 #sólo se utilizan los colores definidos
 for i in range(longitud): 
@@ -77,18 +94,24 @@ for color in range(nColores):
         sumaOthers.append(bool2int(color!=sol[i]))
         s.add(Or(Not(addsum(sumaOthers)>=addsum(sumaColor)+1), Not(addsum(sumaColor)>=addsum(sumaOthers)+1)))
 
-#consumo
+##consumo
 
 suma=0
 for i in range(longitud): 
-    suma+=colores[int(sol[i])]
+    suma+=coste[i]
 s.add(suma<=consumoMax)
 
 
 
 print(s.check())
 if s.check() == z3.sat:
+    print("sol:")
     for i in reversed(range(longitud)):
         print(s.model().eval(sol[i]),  end=' ')
+    print()
+    print("coste:")
+    for i in reversed(range(longitud)):
+        print(s.model().eval(coste[i]),  end=' ')
+    print()
 
 exit(0)
