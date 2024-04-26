@@ -26,10 +26,10 @@ array[1..nAceites] of int: inicial; %Toneladas iniciales que tenemos
 
 
 array [1..nMeses,1..nAceites] of var 0..MCAP: almacen;
-array [1..nMeses,1..nAceites] of var 0..MCAP: compra;
+array [1..nMeses,1..nAceites] of var 0..MCAP*nAceites: compra;
 
 %refinado~=venta
-array [1..nMeses,1..nAceites] of var 0..MCAP: venta;
+array [1..nMeses,1..nAceites] of var 0..MCAP*nAceites: venta;
 
 %limitamos el refinado de aceites, diferenciando entre vegetal y no vegetal
 constraint forall (m in 1..nMeses)(sum(v in 1..2)(venta[m,v])<=MAXV);
