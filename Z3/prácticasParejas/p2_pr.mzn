@@ -32,13 +32,12 @@ array [1..nMeses,1..nAceites] of var 0..MCAP*nAceites: compra;
 array [1..nMeses,1..nAceites] of var 0..MCAP*nAceites: venta;
 
 %limitamos el refinado de aceites, diferenciando entre vegetal y no vegetal
-constraint forall (m in 1..nMeses)(forall(v in 1..nAceites)(venta[m,v]>=0));
 constraint forall (m in 1..nMeses)(sum(v in 1..2)(venta[m,v])<=MAXV);
 constraint forall (m in 1..nMeses)(sum(v in 3..nAceites)(venta[m,v])<=MAXN);
 
 
 %limitamos la compra
-constraint forall (m in 1..nMeses)(forall(v in 1..nAceites)(compra[m,v]>=0));
+constraint forall (m in 1..nMeses)(forall(v in 1..nAceites)(compra[m,v]>=0 /\ venta[m,v]>=0));
 
 
 %venta-compra-almacenaje->beneficios MinB
@@ -57,6 +56,8 @@ constraint forall(v in 1..nAceites)(abs(inicial[v]-(compra[nMeses,v]+almacen[nMe
 constraint forall(m in 1..nMeses)(forall(v in 1..nAceites)(venta[m,v]<=almacen[m,v]+compra[m,v]));
 
 %refinado dureza
+constraint forall(m in 1..nMeses)(sum(v in 1..nAceites)(venta[m,v]*dureza[v])/sum(v in 1..nAceites)(venta[m,v])>MinD /\
+                                  sum(v in 1..nAceites)(venta[m,v]*dureza[v])/sum(v in 1..nAceites)(venta[m,v])<MaxD);
 
 solve satisfy;
 
