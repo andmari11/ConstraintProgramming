@@ -41,7 +41,7 @@ constraint forall (m in 1..nMeses)(forall(v in 1..nAceites)(compra[m,v]>=0 /\ ve
 
 
 %venta-compra-almacenaje->beneficios MinB
-constraint sum(m in 1..nMeses)(sum(v in 1..nAceites)(venta[m,v]*VALOR-compra[m,v]*precios[m,v]-almacen[m,v]*CA))+sum(v in 1..nAceites)(almacen[1,v]*CA+almacen[nMeses,v]*CA)>=MinB;
+constraint (sum(m in 1..nMeses)(sum(v in 1..nAceites)(venta[m,v]*VALOR-compra[m,v]*precios[m,v]-almacen[m,v]*CA))+sum(v in 1..nAceites)(almacen[1,v]*CA+almacen[nMeses,v]*CA))>=0;
 
 
 %almacenamiento inicial
@@ -49,16 +49,21 @@ constraint forall(v in 1..nAceites)(almacen[1,v]=inicial[v]);
 %regulamos que el almacenaje sea coherente
 constraint forall(m in 1..nMeses-1)(forall(v in 1..nAceites)(compra[m,v]+almacen[m,v]-venta[m,v]=almacen[m+1,v]));
 %max pv de cambio almacen inicial
-constraint forall(v in 1..nAceites)(abs(inicial[v]-(compra[nMeses,v]+almacen[nMeses,v]-venta[nMeses,v]))/inicial[v]*100<=PV);
+%constraint forall(v in 1..nAceites)(abs(inicial[v]-(compra[nMeses,v]+almacen[nMeses,v]-venta[nMeses,v]))/inicial[v]*100<=PV);
 
 
 %no vender mas de la cuenta
 constraint forall(m in 1..nMeses)(forall(v in 1..nAceites)(venta[m,v]<=almacen[m,v]+compra[m,v]));
 
 %refinado dureza
-constraint forall(m in 1..nMeses)(sum(v in 1..nAceites)(venta[m,v]*dureza[v])/sum(v in 1..nAceites)(venta[m,v])>MinD /\
-                                  sum(v in 1..nAceites)(venta[m,v]*dureza[v])/sum(v in 1..nAceites)(venta[m,v])<MaxD);
+constraint forall(m in 1..nMeses)(sum(v in 1..nAceites)(venta[m,v]*dureza[v])/sum(v in 1..nAceites)(venta[m,v])>=MinD /\
+                                  sum(v in 1..nAceites)(venta[m,v]*dureza[v])/sum(v in 1..nAceites)(venta[m,v])<=MaxD);
 
-solve satisfy;
+
+%solve satisfy;
+
+solve maximize(sum(m in 1..nMeses)(sum(v in 1..nAceites)(venta[m,v]*VALOR-compra[m,v]*precios[m,v]-almacen[m,v]*CA))+sum(v in 1..nAceites)(almacen[1,v]*CA+almacen[nMeses,v]*CA));
+
+%output ["El beneficio total es: \(sum(m in 1..nMeses)(sum(v in 1..nAceites)(venta[m,v]*VALOR-compra[m,v]*precios[m,v]-almacen[m,v]*CA))+sum(v in 1..nAceites)(almacen[1,v]*CA+almacen[nMeses,v]*CA))"];
 
 
