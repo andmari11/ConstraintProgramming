@@ -32,8 +32,8 @@ array [1..nMeses,1..nAceites] of var 0..MCAP*nAceites: compra;
 array [1..nMeses,1..nAceites] of var 0..MCAP*nAceites: venta;
 
 %limitamos el refinado de aceites, diferenciando entre vegetal y no vegetal
-constraint forall (m in 1..nMeses)(sum(v in 1..2)(venta[m,v])<=MAXV);
-constraint forall (m in 1..nMeses)(sum(v in 3..nAceites)(venta[m,v])<=MAXN);
+constraint forall (m in 1..nMeses)(sum(v in 1..2)(venta[m,v])=MAXV);
+constraint forall (m in 1..nMeses)(sum(v in 3..nAceites)(venta[m,v])=MAXN);
 
 
 %limitamos la compra
@@ -41,7 +41,7 @@ constraint forall (m in 1..nMeses)(forall(v in 1..nAceites)(compra[m,v]>=0 /\ ve
 
 
 %venta-compra-almacenaje->beneficios MinB
-constraint sum(m in 1..nMeses)(sum(v in 1..nAceites)(venta[m,v]*VALOR-compra[m,v]*precios[m,v]-almacen[m,v]*CA))+sum(v in 1..nAceites)(almacen[1,v]*CA+almacen[nMeses,v]*CA)>=MinB;
+constraint sum(m in 1..nMeses)(sum(v in 1..nAceites)(venta[m,v]*VALOR-compra[m,v]*precios[m,v]-almacen[m,v]*CA))>=MinB;
 
 
 %almacenamiento inicial
