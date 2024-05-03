@@ -32,8 +32,8 @@ array [1..nMeses,1..nAceites] of var 0..MCAP: almacen;
 array [1..nMeses,1..nAceites] of var 0..MCAP: compra;
 %refinado~=venta
 array [1..nMeses,1..nAceites] of var 0..MCAP: refinado;
-array[1..nMeses] of var int: beneficios;
-array[1..nMeses] of var float: durezas;
+array[1..nMeses] of var -MinB..MinB: beneficios;
+array[1..nMeses] of var -10..10: durezas;
 
 
 %----------------------------------------------
@@ -87,7 +87,7 @@ constraint forall(m in 1..nMeses)((refinado[m,3]>0 \/ refinado[m,4]>0) -> refina
 var int: beneficio_total;
 constraint beneficio_total == sum(m in 1..nMeses)(beneficios[m]);
 
-%constraint beneficio_total>=60000;
+%constraint beneficio_total>=MinB;
 
 solve maximize beneficio_total;
 

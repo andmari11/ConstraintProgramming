@@ -29,8 +29,10 @@ array [1..nMeses,1..nAceites] of var 0..MCAP: almacen;
 array [1..nMeses,1..nAceites] of var 0..MCAP: compra;
 %refinado~=venta
 array [1..nMeses,1..nAceites] of var 0..MCAP: refinado;
-array[1..nMeses] of var int: beneficios;
-array[1..nMeses] of var float: durezas;
+
+
+array[1..nMeses] of var 0..MCAP*VALOR: beneficios;
+array[1..nMeses] of var MinD..MaxD: durezas;
 
 
 %----------------------------------------------
