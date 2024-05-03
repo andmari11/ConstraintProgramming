@@ -31,9 +31,9 @@ array [1..nMeses,1..nAceites] of var 0..MCAP: almacen;
 
 array [1..nMeses,1..nAceites] of var 0..MCAP: compra;
 %refinado~=venta
-array [1..nMeses,1..nAceites] of var 0..MCAP: refinado;
-array[1..nMeses] of var -MinB..MinB: beneficios;
-array[1..nMeses] of var -10..10: durezas;
+array [1..nMeses,1..nAceites] of var 0..max(MAXN,MAXV): refinado;
+array [1..nMeses] of var -MinB..MinB: beneficios;
+array [1..nMeses] of var -10..10: durezas;
 
 
 %----------------------------------------------
@@ -81,7 +81,7 @@ constraint forall (m in 1..nMeses)(count(a in 1..nAceites)(refinado[m,a]>0)<=K);
 constraint forall (m in 1..nMeses, a in 1..nAceites)(refinado[m,a]>0->refinado[m,a]>=T);
 
 %Si usamos el aceite ANV 1 o el aceite ANV 2 en un cierto mes, entonces VEG 2 tambi´en debe ser usado ese mes. 
-constraint forall(m in 1..nMeses)((refinado[m,3]>0 \/ refinado[m,4]>0) -> refinado[m,2]>0);
+%constraint forall(m in 1..nMeses)((refinado[m,3]>0 \/ refinado[m,4]>0) -> refinado[m,2]>0);
 
 % Función objetivo
 var int: beneficio_total;
