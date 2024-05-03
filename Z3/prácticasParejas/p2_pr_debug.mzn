@@ -55,7 +55,7 @@ constraint forall(m in 1..nMeses)(
         durezas[m] >= MinD /\
         durezas[m] <= MaxD
     )
-    %\/ sum(a in 3..nAceites)(refinado[m,a])== 0 
+    \/ sum(a in 3..nAceites)(refinado[m,a])== 0 
 );
 
                                   
