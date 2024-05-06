@@ -73,6 +73,9 @@ def addsum(a):
     else :
         x = a.pop()
         return x + addsum(a) 
+    
+def absolute_value(x):
+    return If(x >= 0, x, -x)
 
 ################################
 # generamos un fichero smtlib2
@@ -159,8 +162,8 @@ for m in range(nMeses):
 
 #restriccion cambio de PV en almacen
 for a in range(nAceites):
-    cambio=(inicial[a]-(compra[nMeses-1][a]+almacen[nMeses-1][a]-refinado[nMeses-1][a]))/inicial[a]*100
-    s.add(And(cambio<=PV,cambio>=-PV))
+    
+    s.add(absolute_value(inicial[a]-(compra[nMeses-1][a]+almacen[nMeses-1][a]-refinado[nMeses-1][a]))==PV*inicial[a]/100)
 
 #beneficios
 for m in range(nMeses): 
@@ -173,7 +176,7 @@ for m in range(nMeses):
 for m in range(1,nMeses):
     s.add(Or(beneficio[m]>=0,beneficio[m-1]>=0))
 
-s.add(beneficioTotal>MinB)
+s.add(beneficioTotal>=MinB)
 #---------------Voluntarios------------------------
 
 #k aceites
@@ -194,8 +197,8 @@ for m in range(nMeses):
     s.add(Implies(Or(refinado[m][2]>0,refinado[m][3]>0), refinado[m][2]>0))
 
 
-#if s.check() == sat:
-if s.maximize(beneficioTotal):
+print(s.maximize(beneficioTotal))
+if s.check() == sat:
     print("Compra:")
     for fila in compra:
         print([s.model().eval(elemento) for elemento in fila])
@@ -214,6 +217,8 @@ if s.maximize(beneficioTotal):
 
     print("\nBeneficio Total =", (s.model().eval(beneficioTotal)))
 
+else:
+    print("unsat")
 
     
 
