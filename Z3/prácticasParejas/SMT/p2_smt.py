@@ -91,3 +91,9 @@ for m in range(0, nMeses):
     s.add(Sum([refinado[m][a]*VALOR - compra[m][a]*precios[m][a] - almacen[m][a]*CA for a in range(0, nAceites)]) == beneficios[m])
 
 print(s.check())
+
+if s.check() == sat:
+    m = s.model()
+    for d in m.decls():
+        if 'almacen' in d.name() or 'compra' in d.name() or 'refinado' in d.name() or 'beneficios' in d.name() or 'durezas' in d.name():
+            print("{} = {}".format(d.name(), m[d]))
