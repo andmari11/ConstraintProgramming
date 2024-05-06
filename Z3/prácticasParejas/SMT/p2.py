@@ -78,8 +78,9 @@ def addsum(a):
 # generamos un fichero smtlib2
 ################################
 
-s = SolverFor("QF_LIA")
-# s = Solver()
+#s= SolverFor("QF_LIA")
+s = Optimize()
+#s = Solver()
 
 #declaración de variables de la solución
 compra=[]
@@ -101,13 +102,15 @@ for i in range(nMeses):
     compra.append(fila_compra)
     refinado.append(fila_refinado)
     almacen.append(fila_almacen)
+
+beneficioTotal=Sum(beneficio)
 # fin declaración
 
 #variables con sentido
 for i in range(nMeses):
     for j in range(nAceites):
-        s.add(compra[i][j]>=0)
-        s.add(refinado[i][j]>=0)
+        s.add(And(compra[i][j]>=0,compra[i][j]<=MCAP))
+        s.add(And(refinado[i][j]>=0,refinado[i][j]<=MCAP)) 
         s.add(And(almacen[i][j]>=0, almacen[i][j]<=MCAP))
     s.add(beneficio[i]>=0)
 
@@ -128,7 +131,7 @@ for m in range(nMeses):
 
     for a in range(nVeg):
         sumaV.append(refinado[m][a])
-    for a in range(nVeg,nNoVeg):
+    for a in range(nVeg,nAceites):
         sumaNV.append(refinado[m][a])
 
     s.add(addsum(sumaV)<=MAXV)
@@ -145,7 +148,7 @@ for m in range(nMeses):
         sumaMesTotal.append(refinado[m][a])
 
     durezaMes=addsum(sumaMesDureza)/addsum(sumaMesTotal)
-    s.add(And(durezaMes>=MinD,durezaMes<=MaxD))
+    s.add(Or(And(durezaMes>=MinD,durezaMes<=MaxD), Sum([refinado[m][a] for a in range(nVeg, nAceites)]) == 0 ))
 
 
 # for m in range(nMeses):
@@ -170,7 +173,7 @@ for m in range(nMeses):
 for m in range(1,nMeses):
     s.add(Or(beneficio[m]>=0,beneficio[m-1]>=0))
 
-s.add(Sum(beneficio)>MinB)
+s.add(beneficioTotal>MinB)
 #---------------Voluntarios------------------------
 
 #k aceites
@@ -191,9 +194,8 @@ for m in range(nMeses):
     s.add(Implies(Or(refinado[m][2]>0,refinado[m][3]>0), refinado[m][2]>0))
 
 
-print(s.check())
-
-if s.check() == sat:
+#if s.check() == sat:
+if s.maximize(beneficioTotal):
     print("Compra:")
     for fila in compra:
         print([s.model().eval(elemento) for elemento in fila])
@@ -207,8 +209,11 @@ if s.check() == sat:
         print([s.model().eval(elemento) for elemento in fila])
 
     print("Beneficios:")
-    for i in (range(nMeses)):
-        print(s.model().eval(beneficio[i]))
+    for i in range(nMeses):
+        print(s.model().eval(beneficio[i]), end=" ")
+
+    print("\nBeneficio Total =", (s.model().eval(beneficioTotal)))
+
 
     
 
