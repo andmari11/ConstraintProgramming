@@ -52,6 +52,7 @@ def nRefinado (i,j):
 def nBeneficio (i):
     return "beneficio_"+str(i)
 
+
 def bool2int(b):
     return If(b, 1, 0)
 
@@ -133,50 +134,61 @@ for m in range(nMeses):
     s.add(addsum(sumaV)<=MAXV)
     s.add(addsum(sumaNV)<=MAXN)
 
+
+#restriccion durezas
+for m in range(nMeses):
+    sumaMesDureza=[]
+    sumaMesTotal=[]
+
+    for a in range(nAceites):
+        sumaMesDureza.append(refinado[m][a]*dureza[a])
+        sumaMesTotal.append(refinado[m][a])
+
+    durezaMes=addsum(sumaMesDureza)/addsum(sumaMesTotal)
+    s.add(And(durezaMes>=MinD,durezaMes<=MaxD))
+
+
+# for m in range(nMeses):
+#     # sumaAceitesV=[]
+#     # for a in range(nVeg, nAceites):
+#     #     sumaAceitesV.append(refinado[m][a])
+
+
 #restriccion cambio de PV en almacen
 for a in range(nAceites):
-    cambio=Abs(inicial[a]-(compra[nMeses-1][a]+almacen[nMeses-1][a]-refinado[nMeses-1][a]))
-    s.add(cambio/inicial[a]*100<=PV)
+    cambio=(inicial[a]-(compra[nMeses-1][a]+almacen[nMeses-1][a]-refinado[nMeses-1][a]))/inicial[a]*100
+    s.add(And(cambio<=PV,cambio>=-PV))
 
 #beneficios
 for m in range(nMeses): 
     sumaMes=[]
     for a in range(nAceites):
         sumaMes.append(refinado[m][a]*VALOR-compra[m][a]*precios[m][a]-almacen[m][a]*CA)
-    s.add(addsum(sumaMes==beneficio[m]))
+    s.add(addsum(sumaMes)==beneficio[m])
 
 #no dos meses con perdidas
 for m in range(1,nMeses):
     s.add(Or(beneficio[m]>=0,beneficio[m-1]>=0))
 
+s.add(Sum(beneficio)>MinB)
+#---------------Voluntarios------------------------
 
-#
-
-
-
-
-
-
-
-
-
+#k aceites
+for m in range(nMeses):
+    suma=[]
+    for a in range(nAceites):
+        suma.append(bool2int(refinado[m][a]>0))
+    s.add(addsum(suma)<=K)
 
 
+#T minimas
+for m in range(nMeses):
+    for a in range(nAceites):
+        s.add(Implies(refinado[m][a]>0,refinado[m][a]>T))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#si usamos el aceite ANV 1 o el aceite ANV 2 en un cierto mes, entonces VEG 2 tambi´en debe ser usado ese mes. 
+for m in range(nMeses):
+    s.add(Implies(Or(refinado[m][2]>0,refinado[m][3]>0), refinado[m][2]>0))
 
 
 print(s.check())
@@ -193,6 +205,12 @@ if s.check() == sat:
     print("Almacen:")
     for fila in almacen:
         print([s.model().eval(elemento) for elemento in fila])
+
+    print("Beneficios:")
+    for i in (range(nMeses)):
+        print(s.model().eval(beneficio[i]))
+
+    
 
 exit(0)
 
