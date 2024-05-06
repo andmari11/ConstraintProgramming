@@ -32,11 +32,11 @@ PV = 10 # No puede variar el almacenamiento del almacén desde el inicio hasta e
 
 
 #Declaración de variables solución
-almacen = [ [ Int("almacen_{}_{}".format(m, a)) for a in range(1, nAceites+1) ] for m in range(1, nMeses+1) ]
-compra = [ [ Int("compra_{}_{}".format(m, a)) for a in range(1, nAceites+1) ] for m in range(1, nMeses+1) ]
-refinado = [ [ Int("refinado_{}_{}".format(m, a)) for a in range(1, nAceites+1) ] for m in range(1, nMeses+1) ]
-beneficios = [ Int("beneficios_{}".format(m)) for m in range(1, nMeses+1) ]
-durezas = [ Int("durezas_{}".format(m)) for m in range(1, nMeses+1) ]
+almacen = [ [ Int("almacen_{}_{}".format(m, a)) for a in range(0, nAceites) ] for m in range(0, nMeses) ]
+compra = [ [ Int("compra_{}_{}".format(m, a)) for a in range(0, nAceites) ] for m in range(0, nMeses) ]
+refinado = [ [ Int("refinado_{}_{}".format(m, a)) for a in range(0, nAceites) ] for m in range(0, nMeses) ]
+beneficios = [ Int("beneficios_{}".format(m)) for m in range(0, nMeses) ]
+durezas = [ Int("durezas_{}".format(m)) for m in range(0, nMeses) ]
 
 # Restricciones de los rangos de las variables
 s = SolverFor("QF_LIA")
@@ -54,40 +54,40 @@ for a in range(nAceites):
     s.add(almacen[0][a] == inicial[a])
 
 # constraint forall(m in 2..nMeses,a in 1..nAceites)(almacen[m-1,a]+compra[m-1,a]-refinado[m-1,a]==almacen[m,a]);
-for m in range(1, nMeses):
+for m in range(0, nMeses):
     for a in range(nAceites):
         s.add(almacen[m-1][a] + compra[m-1][a] - refinado[m-1][a] == almacen[m][a])
 
 # constraint forall(m in 1..nMeses)(sum(a in 1..2)(refinado[m,a])=MAXV /\ sum(a in 3..nAceites)(refinado[m,a])=MAXN);
 for m in range(nMeses):
-    s.add(Sum([refinado[m][a] for a in range(2)]) == MAXV)
-    s.add(Sum([refinado[m][a] for a in range(2, nAceites)]) == MAXN)
+    s.add(Sum([refinado[m][a] for a in range(1)]) == MAXV)
+    s.add(Sum([refinado[m][a] for a in range(1, nAceites)]) == MAXN)
 
 # constraint forall(m in 1..nMeses)(durezas[m]==(sum(v in 1..nAceites)(refinado[m,v]*dureza[v]) / sum(v in 1..nAceites)(refinado[m,v])));
 for m in range(nMeses):
     s.add(durezas[m] == Sum([refinado[m][v]*dureza[v] for v in range(nAceites)]) / Sum([refinado[m][v] for v in range(nAceites)]))
 
 # constraint forall(m in 1..nMeses)((durezas[m] >= MinD /\durezas[m] <= MaxD)\/ sum(a in 3..nAceites)(refinado[m,a])== 0 );
-for m in range(1, nMeses + 1):
+for m in range(1, nMeses):
     # durezas[m] >= MinD /\durezas[m] <= MaxD)
     durezaAceiteVegetal = And(durezas[m] >= MinD, durezas[m] <= MaxD)
 
     # sum(a in 3..nAceites)(refinado[m,a])== 0
-    durezaFinal = Sum([refinado[m][a] for a in range(3, nAceites + 1)]) == 0
+    durezaFinal = Sum([refinado[m][a] for a in range(2, nAceites)]) == 0
 
     # Agregar la restricción al solucionador
     s.add(Or(durezaAceiteVegetal, durezaFinal))
 
 # constraint forall(v in 1..nAceites)(abs(inicial[v]-(compra[nMeses,v]+almacen[nMeses,v]-refinado[nMeses,v]))/inicial[v]*100<=PV);
-for v in range(1, nAceites + 1):
-    s.add(Abs(inicial[v] - (compra[nMeses][v] + almacen[nMeses][v] - refinado[nMeses][v])) / inicial[v] * 100 <= PV)
+for v in range(0, nAceites):
+    s.add(Abs(inicial[v] - (compra[nMeses - 1][v] + almacen[nMeses - 1][v] - refinado[nMeses - 1][v])) / inicial[v] * 100 <= PV)
 
 # constraint forall(m in 2..nMeses)((beneficios[m]>= 0) \/ (beneficios[m-1]>= 0));
-for m in range(2, nMeses + 1):
+for m in range(1, nMeses):
     s.add(Or(beneficios[m] >= 0, beneficios[m - 1] >= 0))
 
 # constraint forall (m in 1..nMeses)(sum(a in 1..nAceites)(refinado[m,a]*VALOR-compra[m,a]*precios[m,a]-almacen[m,a]*CA)==beneficios[m]);
-for m in range(1, nMeses + 1):
-    s.add(Sum([refinado[m][a]*VALOR - compra[m][a]*precios[m][a] - almacen[m][a]*CA for a in range(1, nAceites + 1)]) == beneficios[m])
+for m in range(0, nMeses):
+    s.add(Sum([refinado[m][a]*VALOR - compra[m][a]*precios[m][a] - almacen[m][a]*CA for a in range(0, nAceites)]) == beneficios[m])
 
 print(s.check())
