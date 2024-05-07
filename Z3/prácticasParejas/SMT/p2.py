@@ -73,8 +73,8 @@ def addsum(a):
         x = a.pop()
         return x + addsum(a) 
     
-def absolute_value(x):
-    return If(x >= 0, x, -x)
+def Abs(arg):
+    return If(arg > 0, arg, -arg)
 
 ################################
 # generamos un fichero smtlib2
@@ -155,8 +155,7 @@ for m in range(nMeses):
 
 #restriccion cambio de PV en almacen
 for a in range(nAceites):
-    
-    s.add(absolute_value(inicial[a]-(compra[nMeses-1][a]+almacen[nMeses-1][a]-refinado[nMeses-1][a]))<=PV*inicial[a]/100)
+    s.add(Abs(inicial[a]-(compra[nMeses-1][a]+almacen[nMeses-1][a]-refinado[nMeses-1][a]))<=PV*inicial[a]/100)
 
 #beneficios
 for m in range(nMeses): 

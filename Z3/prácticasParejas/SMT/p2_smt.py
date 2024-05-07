@@ -36,7 +36,7 @@ almacen = [ [ Int("almacen_{}_{}".format(m, a)) for a in range(0, nAceites) ] fo
 compra = [ [ Int("compra_{}_{}".format(m, a)) for a in range(0, nAceites) ] for m in range(0, nMeses) ]
 refinado = [ [ Int("refinado_{}_{}".format(m, a)) for a in range(0, nAceites) ] for m in range(0, nMeses) ]
 beneficios = [ Int("beneficios_{}".format(m)) for m in range(0, nMeses) ]
-durezas = [ Int("durezas_{}".format(m)) for m in range(0, nMeses) ]
+durezas = [ Real("durezas_{}".format(m)) for m in range(0, nMeses) ]
 
 # Restricciones de los rangos de las variables
 s = SolverFor("QF_LIA")
@@ -60,8 +60,8 @@ for m in range(0, nMeses):
 
 # constraint forall(m in 1..nMeses)(sum(a in 1..2)(refinado[m,a])=MAXV /\ sum(a in 3..nAceites)(refinado[m,a])=MAXN);
 for m in range(nMeses):
-    s.add(Sum([refinado[m][a] for a in range(1)]) == MAXV)
-    s.add(Sum([refinado[m][a] for a in range(1, nAceites)]) == MAXN)
+    s.add(Sum([refinado[m][a] for a in range(2)]) <= MAXV)
+    s.add(Sum([refinado[m][a] for a in range(2, nAceites)]) <= MAXN)
 
 # constraint forall(m in 1..nMeses)(durezas[m]==(sum(v in 1..nAceites)(refinado[m,v]*dureza[v]) / sum(v in 1..nAceites)(refinado[m,v])));
 for m in range(nMeses):
@@ -90,10 +90,26 @@ for m in range(1, nMeses):
 for m in range(0, nMeses):
     s.add(Sum([refinado[m][a]*VALOR - compra[m][a]*precios[m][a] - almacen[m][a]*CA for a in range(0, nAceites)]) == beneficios[m])
 
-print(s.check())
+
 
 if s.check() == sat:
-    m = s.model()
-    for d in m.decls():
-        if 'almacen' in d.name() or 'compra' in d.name() or 'refinado' in d.name() or 'beneficios' in d.name() or 'durezas' in d.name():
-            print("{} = {}".format(d.name(), m[d]))
+    print("Compra:")
+    for fila in compra:
+        print([s.model().eval(elemento) for elemento in fila])
+    
+    print("Refinado:")
+    for fila in refinado:
+        print([s.model().eval(elemento) for elemento in fila])
+    
+    print("Almacen:")
+    for fila in almacen:
+        print([s.model().eval(elemento) for elemento in fila])
+
+    print("Beneficios:")
+    for i in range(nMeses):
+        print(s.model().eval(beneficios[i]), end=" ")
+
+else:
+    print("unsat")
+
+    
