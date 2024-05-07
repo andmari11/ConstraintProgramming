@@ -81,8 +81,8 @@ def absolute_value(x):
 # generamos un fichero smtlib2
 ################################
 
-s= SolverFor("QF_LIA")
-#s = Optimize()
+#s= SolverFor("QF_LIA")
+s = Optimize()
 #s = Solver()
 
 #declaración de variables de la solución
@@ -109,12 +109,35 @@ for i in range(nMeses):
 beneficioTotal=Sum(beneficio)
 # fin declaración
 
+#---------------SOFT CONSTRAINTS------------------------
+
+#k aceites max utilizados
+for m in range(nMeses):
+    suma=[]
+    for a in range(nAceites):
+        suma.append(bool2int(refinado[m][a]>0))
+    s.add_soft(addsum(suma)<=K,3,"k_aceites")
+
+#T minimas
+for m in range(nMeses):
+    for a in range(nAceites):
+        s.add_soft(Implies(refinado[m][a]>0,refinado[m][a]>T),2,"T_Min")
+
+#si usamos el aceite ANV 1 o el aceite ANV 2 en un cierto mes, entonces VEG 2 tambi´en debe ser usado ese mes. 
+for m in range(nMeses):
+    s.add_soft(Implies(Or(refinado[m][nVeg]>0,refinado[m][nVeg+1]>0), refinado[m][2]>0),2,"Mezcla_Def")
+
+
+#---------------CONSTRAINTS------------------------
+
 #variables con sentido
 for i in range(nMeses):
     for j in range(nAceites):
         s.add(And(compra[i][j]>=0,compra[i][j]<=MCAP))
         s.add(And(refinado[i][j]>=0,refinado[i][j]<=MCAP)) 
         s.add(And(almacen[i][j]>=0, almacen[i][j]<=MCAP))
+    s.add(beneficio[i]>=0)
+
 
 #restriccion de almacenamiento inicial
 for a in range(nAceites):
@@ -151,11 +174,11 @@ for m in range(nMeses):
     durezaMes=addsum(sumaMesDureza)/addsum(sumaMesTotal)
     s.add(Or(And(durezaMes>=MinD,durezaMes<=MaxD), Sum([refinado[m][a] for a in range(nVeg, nAceites)]) == 0 ))
 
-
 #restriccion cambio de PV en almacen
 for a in range(nAceites):
     
     s.add(absolute_value(inicial[a]-(compra[nMeses-1][a]+almacen[nMeses-1][a]-refinado[nMeses-1][a]))<=PV*inicial[a]/100)
+
 
 #beneficios
 for m in range(nMeses): 
@@ -169,24 +192,6 @@ for m in range(1,nMeses):
     s.add(Or(beneficio[m]>=0,beneficio[m-1]>=0))
 
 s.add(beneficioTotal>=MinB)
-#---------------Voluntarios------------------------
-
-#k aceites
-for m in range(nMeses):
-    suma=[]
-    for a in range(nAceites):
-        suma.append(bool2int(refinado[m][a]>0))
-    s.add(addsum(suma)<=K)
-
-
-#T minimas
-for m in range(nMeses):
-    for a in range(nAceites):
-        s.add(Implies(refinado[m][a]>0,refinado[m][a]>T))
-
-#si usamos el aceite ANV 1 o el aceite ANV 2 en un cierto mes, entonces VEG 2 tambi´en debe ser usado ese mes. 
-for m in range(nMeses):
-    s.add(Implies(Or(refinado[m][nVeg]>0,refinado[m][nVeg+1]>0), refinado[m][2]>0))
 
 #---------------Solución------------------------
 
