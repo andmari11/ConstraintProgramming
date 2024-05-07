@@ -2,7 +2,6 @@
 from z3 import *
 import sys
 
-#comentarios de variables
 
 nVeg=2
 nNoVeg=3
@@ -118,7 +117,7 @@ for m in range(nMeses):
         suma.append(bool2int(refinado[m][a]>0))
     s.add_soft(addsum(suma)<=K,3,"k_aceites")
 
-#T minimas
+#T minimas al usar un aceite
 for m in range(nMeses):
     for a in range(nAceites):
         s.add_soft(Implies(refinado[m][a]>0,refinado[m][a]>T),2,"T_Min")
@@ -130,7 +129,7 @@ for m in range(nMeses):
 
 #---------------CONSTRAINTS------------------------
 
-#variables con sentido
+#limitamos las variables
 for i in range(nMeses):
     for j in range(nAceites):
         s.add(And(compra[i][j]>=0,compra[i][j]<=MCAP))

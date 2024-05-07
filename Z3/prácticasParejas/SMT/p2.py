@@ -2,7 +2,6 @@
 from z3 import *
 import sys
 
-#comentarios de variables
 
 nVeg=2
 nNoVeg=3
@@ -109,7 +108,9 @@ for i in range(nMeses):
 beneficioTotal=Sum(beneficio)
 # fin declaración
 
-#variables con sentido
+#-------------Constraints----------------
+
+#limitamos las variables
 for i in range(nMeses):
     for j in range(nAceites):
         s.add(And(compra[i][j]>=0,compra[i][j]<=MCAP))
@@ -169,6 +170,7 @@ for m in range(1,nMeses):
     s.add(Or(beneficio[m]>=0,beneficio[m-1]>=0))
 
 s.add(beneficioTotal>=MinB)
+
 #---------------Voluntarios------------------------
 
 #k aceites
@@ -179,7 +181,7 @@ for m in range(nMeses):
     s.add(addsum(suma)<=K)
 
 
-#T minimas
+#T minimas al usar un aceite
 for m in range(nMeses):
     for a in range(nAceites):
         s.add(Implies(refinado[m][a]>0,refinado[m][a]>T))
