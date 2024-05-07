@@ -81,8 +81,8 @@ def absolute_value(x):
 # generamos un fichero smtlib2
 ################################
 
-s= SolverFor("QF_LIA")
-#s = Optimize()
+#s= SolverFor("QF_LIA")
+s = Optimize()
 #s = Solver()
 
 #declaración de variables de la solución
@@ -171,15 +171,8 @@ for m in range(1,nMeses):
     s.add(Or(beneficio[m]>=0,beneficio[m-1]>=0))
 
 s.add(beneficioTotal>=MinB)
+
 #---------------Voluntarios------------------------
-
-#k aceites
-for m in range(nMeses):
-    suma=[]
-    for a in range(nAceites):
-        suma.append(bool2int(refinado[m][a]>0))
-    s.add(addsum(suma)<=K)
-
 
 #T minimas
 for m in range(nMeses):
@@ -190,8 +183,18 @@ for m in range(nMeses):
 for m in range(nMeses):
     s.add(Implies(Or(refinado[m][nVeg]>0,refinado[m][nVeg+1]>0), refinado[m][2]>0))
 
-#---------------Solución------------------------
+#k aceites
+for m in range(nMeses):
+    sumaAceitesUsados=[]
+    for a in range(nAceites):
+        sumaAceitesUsados.append(bool2int(refinado[m][a]>0))
+    s.add(Sum(sumaAceitesUsados)<=K)
 
+#---------------Optimizar------------------------
+
+s.minimize(addsum(sumaAceitesUsados))
+
+#---------------Solución------------------------
 if s.check() == sat:
     print("Compra:")
     for fila in compra:
