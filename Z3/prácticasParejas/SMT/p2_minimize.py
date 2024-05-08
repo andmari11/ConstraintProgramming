@@ -195,6 +195,8 @@ for m in range(nMeses):
     utilizadoMes=addsum(sumaAceitesUsados)
     s.add(utilizadoMes<=K)
     s.minimize(utilizadoMes)#1min
+
+    #lo guardo para la solución
     aceitesTotalesUtilizados.append(utilizadoMes)
 
 #---------------Solución------------------------
