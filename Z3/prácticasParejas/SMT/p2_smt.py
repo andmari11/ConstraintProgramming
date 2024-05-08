@@ -93,7 +93,7 @@ for m in range(0, nMeses):
 
 
 if s.check() == sat:
-    print("Compra:")
+    print("\n\nCompra:")
     for fila in compra:
         print([s.model().eval(elemento) for elemento in fila])
     

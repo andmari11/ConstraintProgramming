@@ -73,7 +73,7 @@ def addsum(a):
         x = a.pop()
         return x + addsum(a) 
     
-def absolute_value(x):
+def Abs(x):
     return If(x >= 0, x, -x)
 
 ################################
@@ -158,7 +158,7 @@ for m in range(nMeses):
 #restriccion cambio de PV en almacen
 for a in range(nAceites):
     
-    s.add(absolute_value(inicial[a]-(compra[nMeses-1][a]+almacen[nMeses-1][a]-refinado[nMeses-1][a]))<=PV*inicial[a]/100)
+    s.add(Abs(inicial[a]-(compra[nMeses-1][a]+almacen[nMeses-1][a]-refinado[nMeses-1][a]))<=PV*inicial[a]/100)
 
 #beneficios
 for m in range(nMeses): 
@@ -184,36 +184,42 @@ for m in range(nMeses):
 for m in range(nMeses):
     s.add(Implies(Or(refinado[m][nVeg]>0,refinado[m][nVeg+1]>0), refinado[m][2]>0))
 
+#---------------Optimizar------------------------
+
 #k aceites
+aceitesTotalesUtilizados=[]
 for m in range(nMeses):
     sumaAceitesUsados=[]
     for a in range(nAceites):
         sumaAceitesUsados.append(bool2int(refinado[m][a]>0))
-    s.add(Sum(sumaAceitesUsados)<=K)
-
-#---------------Optimizar------------------------
-
-s.minimize(addsum(sumaAceitesUsados))
+    utilizadoMes=addsum(sumaAceitesUsados)
+    s.add(utilizadoMes<=K)
+    s.minimize(utilizadoMes)#1min
+    aceitesTotalesUtilizados.append(utilizadoMes)
 
 #---------------Solución------------------------
+
 if s.check() == sat:
-    print("Compra:")
+    
+    print("\n\nCompra:")
     for fila in compra:
         print([s.model().eval(elemento) for elemento in fila])
     
     print("Refinado:")
     for fila in refinado:
         print([s.model().eval(elemento) for elemento in fila])
-    
+
     print("Almacen:")
     for fila in almacen:
         print([s.model().eval(elemento) for elemento in fila])
 
     print("Beneficios:")
-    for i in range(nMeses):
-        print(s.model().eval(beneficio[i]), end=" ")
+    print([s.model().eval(elemento) for elemento in beneficio])
 
-    print("\nBeneficio Total =", (s.model().eval(beneficioTotal)))
+    print("Beneficio Total =", (s.model().eval(beneficioTotal)))
+    
+    print("Aceites refinados por mes:")
+    print([s.model().eval(elemento) for elemento in aceitesTotalesUtilizados])
 
 else:
     print("unsat")

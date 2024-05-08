@@ -192,7 +192,7 @@ for m in range(nMeses):
 #---------------Solución------------------------
 
 if s.check() == sat:
-    print("Compra:")
+    print("\n\nCompra:")
     for fila in compra:
         print([s.model().eval(elemento) for elemento in fila])
     
@@ -205,10 +205,10 @@ if s.check() == sat:
         print([s.model().eval(elemento) for elemento in fila])
 
     print("Beneficios:")
-    for i in range(nMeses):
-        print(s.model().eval(beneficio[i]), end=" ")
+    print([s.model().eval(elemento) for elemento in beneficio])
 
-    print("\nBeneficio Total =", (s.model().eval(beneficioTotal)))
+
+    print("Beneficio Total =", (s.model().eval(beneficioTotal)))
 
 else:
     print("unsat")

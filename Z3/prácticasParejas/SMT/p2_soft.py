@@ -73,7 +73,7 @@ def addsum(a):
         x = a.pop()
         return x + addsum(a) 
     
-def absolute_value(x):
+def Abs(x):
     return If(x >= 0, x, -x)
 
 ################################
@@ -176,7 +176,7 @@ for m in range(nMeses):
 #restriccion cambio de PV en almacen
 for a in range(nAceites):
     
-    s.add(absolute_value(inicial[a]-(compra[nMeses-1][a]+almacen[nMeses-1][a]-refinado[nMeses-1][a]))<=PV*inicial[a]/100)
+    s.add(Abs(inicial[a]-(compra[nMeses-1][a]+almacen[nMeses-1][a]-refinado[nMeses-1][a]))<=PV*inicial[a]/100)
 
 
 #beneficios
@@ -195,7 +195,7 @@ s.add(beneficioTotal>=MinB)
 #---------------Solución------------------------
 
 if s.check() == sat:
-    print("Compra:")
+    print("\n\nCompra:")
     for fila in compra:
         print([s.model().eval(elemento) for elemento in fila])
     
@@ -208,10 +208,9 @@ if s.check() == sat:
         print([s.model().eval(elemento) for elemento in fila])
 
     print("Beneficios:")
-    for i in range(nMeses):
-        print(s.model().eval(beneficio[i]), end=" ")
+    print([s.model().eval(elemento) for elemento in beneficio])
 
-    print("\nBeneficio Total =", (s.model().eval(beneficioTotal)))
+    print("Beneficio Total =", (s.model().eval(beneficioTotal)))
 
 else:
     print("unsat")
