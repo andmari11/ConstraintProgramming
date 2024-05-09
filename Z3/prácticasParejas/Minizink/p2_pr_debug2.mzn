@@ -87,7 +87,7 @@ constraint forall (m in 1..nMeses, a in 1..nAceites)(refinado[m,a]>0->refinado[m
 var int: beneficio_total;
 constraint beneficio_total == sum(m in 1..nMeses)(beneficios[m]);
 
-%constraint beneficio_total>=MinB;
+constraint beneficio_total>=MinB;
 
 solve maximize beneficio_total;
 

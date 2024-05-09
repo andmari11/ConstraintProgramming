@@ -2,6 +2,9 @@
 int: nMeses=6;
 int: nAceites=5;
 
+int: K;
+int: T;
+
 int: VALOR; %Valor por el que se vende el producto final por tonelada
 int: MAXV; %Máximo de toneladas de aceite vegetal a refinar por mes
 int: MAXN; %Máximo de toneladas de aceite no vegetal a refinar por mes
@@ -28,11 +31,8 @@ array [1..nMeses,1..nAceites] of var 0..MCAP: almacen;
 
 array [1..nMeses,1..nAceites] of var 0..MCAP: compra;
 %refinado~=venta
-array [1..nMeses,1..nAceites] of var 0..MCAP: refinado;
-
-
-array[1..nMeses] of var 0..MCAP*VALOR: beneficios;
-array[1..nMeses] of var MinD..MaxD: durezas;
+array [1..nMeses,1..nAceites] of var 0..max(MAXN,MAXV): refinado;
+array [1..nMeses] of var -MinB..MinB: beneficios;
 
 
 %----------------------------------------------
@@ -46,23 +46,21 @@ constraint forall(a in 1..nAceites)(almacen[1,a] == inicial[a]);
 constraint forall(m in 2..nMeses,a in 1..nAceites)(almacen[m-1,a]+compra[m-1,a]-refinado[m-1,a]==almacen[m,a]);
 
 %restriccion  de refinado maximo(MAXN/MAXV limita a la suma o a cada aceite?)
-constraint forall(m in 1..nMeses)(sum(a in 1..2)(refinado[m,a])=MAXV /\ sum(a in 3..nAceites)(refinado[m,a])=MAXN);
-
-constraint forall(m in 1..nMeses)(durezas[m]==(sum(v in 1..nAceites)(refinado[m,v]*dureza[v]) / sum(v in 1..nAceites)(refinado[m,v])));
+constraint forall(m in 1..nMeses)(sum(a in 1..2)(refinado[m,a])<=MAXV /\ sum(a in 3..nAceites)(refinado[m,a])<=MAXN);
 
 
 %restriccion  de dureza de refinado  
 constraint forall(m in 1..nMeses)(
     (
-        durezas[m] >= MinD /\
-        durezas[m] <= MaxD
+        sum(v in 1..nAceites)(refinado[m,v]*dureza[v]) >= MinD*sum(v in 1..nAceites)(refinado[m,v])/\
+        sum(v in 1..nAceites)(refinado[m,v]*dureza[v]) <= MaxD*sum(v in 1..nAceites)(refinado[m,v])
     )
     \/ sum(a in 3..nAceites)(refinado[m,a])== 0 
 );
 
                                   
 %restriccion cambio PV
-constraint forall(v in 1..nAceites)(abs(inicial[v]-(compra[nMeses,v]+almacen[nMeses,v]-refinado[nMeses,v]))/inicial[v]*100<=PV);
+constraint forall(v in 1..nAceites)(abs(inicial[v]-(compra[nMeses,v]+almacen[nMeses,v]-refinado[nMeses,v]))<=PV*inicial[v]/100);
 
 %perdidas dos meses seguidos
 constraint forall(m in 2..nMeses)(
@@ -72,11 +70,21 @@ constraint forall(m in 2..nMeses)(
 
 constraint forall (m in 1..nMeses)(sum(a in 1..nAceites)(refinado[m,a]*VALOR-compra[m,a]*precios[m,a]-almacen[m,a]*CA)==beneficios[m]);
 
+%EXTRA
+%no se mezclan mas de k aceites
+constraint forall (m in 1..nMeses)(count(a in 1..nAceites)(refinado[m,a]>0)<=K);
+
+%utilizar un minimo de T toneladas
+constraint forall (m in 1..nMeses, a in 1..nAceites)(refinado[m,a]>0->refinado[m,a]>=T);
+
+%Si usamos el aceite ANV 1 o el aceite ANV 2 en un cierto mes, entonces VEG 2 tambi´en debe ser usado ese mes. 
+constraint forall(m in 1..nMeses)((refinado[m,3]>0 \/ refinado[m,4]>0) -> refinado[m,2]>0);
+
 % Función objetivo
 var int: beneficio_total;
 constraint beneficio_total == sum(m in 1..nMeses)(beneficios[m]);
 
-%constraint beneficio_total>=60000;
+constraint beneficio_total>=MinB;
 
 solve maximize beneficio_total;
 
