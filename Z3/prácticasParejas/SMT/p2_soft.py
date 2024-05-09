@@ -170,8 +170,9 @@ for m in range(nMeses):
         sumaMesDureza.append(refinado[m][a]*dureza[a])
         sumaMesTotal.append(refinado[m][a])
 
-    durezaMes=addsum(sumaMesDureza)/addsum(sumaMesTotal)
-    s.add(Or(And(durezaMes>=MinD,durezaMes<=MaxD), Sum([refinado[m][a] for a in range(nVeg, nAceites)]) == 0 ))
+    durezaMes=addsum(sumaMesDureza)
+    mesTotal=addsum(sumaMesTotal)
+    s.add(Or(And(durezaMes>=MinD*mesTotal,durezaMes<=MaxD*mesTotal), Sum([refinado[m][a] for a in range(nVeg, nAceites)]) == 0 ))
 
 #restriccion cambio de PV en almacen
 for a in range(nAceites):

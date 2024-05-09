@@ -52,8 +52,8 @@ constraint forall(m in 1..nMeses)(sum(a in 1..2)(refinado[m,a])<=MAXV /\ sum(a i
 %restriccion  de dureza de refinado  
 constraint forall(m in 1..nMeses)(
     (
-        sum(v in 1..nAceites)(refinado[m,v]*dureza[v]) >= MinD*sum(v in 1..nAceites)(refinado[m,v])/\
-        sum(v in 1..nAceites)(refinado[m,v]*dureza[v]) <= MaxD*sum(v in 1..nAceites)(refinado[m,v])
+        sum(v in 1..nAceites)(refinado[m,v]*dureza[v]) >= sum(v in 1..nAceites)(MinD*refinado[m,v])/\
+        sum(v in 1..nAceites)(refinado[m,v]*dureza[v]) <= sum(v in 1..nAceites)(MaxD*refinado[m,v])
     )
     \/ sum(a in 3..nAceites)(refinado[m,a])== 0 
 );
