@@ -174,16 +174,6 @@ for m in range(1,nMeses):
 
 s.add(beneficioTotal>=MinB)
 
-#---------------Voluntarios------------------------
-
-#T minimas al usar un aceite
-for m in range(nMeses):
-    for a in range(nAceites):
-        s.add(Implies(refinado[m][a]>0,refinado[m][a]>T))
-
-#si usamos el aceite ANV 1 o el aceite ANV 2 en un cierto mes, entonces VEG 2 tambi´en debe ser usado ese mes. 
-for m in range(nMeses):
-    s.add(Implies(Or(refinado[m][nVeg]>0,refinado[m][nVeg+1]>0), refinado[m][2]>0))
 
 #---------------Optimizar------------------------
 
@@ -193,12 +183,12 @@ for m in range(nMeses):
     sumaAceitesUsados=[]
     for a in range(nAceites):
         sumaAceitesUsados.append(bool2int(refinado[m][a]>0))
-    utilizadoMes=addsum(sumaAceitesUsados)
-    s.add(utilizadoMes<=K)
-    s.minimize(utilizadoMes)#1min
 
+    utilizadoMes=addsum(sumaAceitesUsados)
     #lo guardo para la solución
     aceitesTotalesUtilizados.append(utilizadoMes)
+
+    s.minimize(utilizadoMes)#1min
 
 #---------------Solución------------------------
 
