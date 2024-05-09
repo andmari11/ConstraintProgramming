@@ -3,10 +3,10 @@ from z3 import *
 import sys
 
 
-nVeg=2
-nNoVeg=3
-nAceites=nVeg+nNoVeg
-nMeses=6
+nVeg = int(input())
+nNoVeg = int(input())
+nAceites = nVeg + nNoVeg
+nMeses = int(input())
 
 VALOR = int(input())
 
