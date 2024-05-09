@@ -1,7 +1,7 @@
 %datafile
-nMeses=6;
 nVeg=2;
 nNoVeg=3;
+nMeses=6;
 
 VALOR = 150;
 dureza = [7, 5.1, 5.0, 4.2, 2.0];
