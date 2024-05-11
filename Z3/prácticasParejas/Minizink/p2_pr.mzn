@@ -106,5 +106,5 @@ constraint beneficio_total == sum(m in 1..nMeses)(beneficios[m]);
 
 constraint beneficio_total>=MinB;
 
-solve satisfy;
+solve maximize beneficio_total;
 

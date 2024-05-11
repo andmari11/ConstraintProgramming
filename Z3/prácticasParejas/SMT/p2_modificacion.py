@@ -45,6 +45,7 @@ for i in range(len(auxArray)):
     inicial.append(float(auxArray[i]))
 
 PV = int(input())
+#
 K = int(input())
 T = int(input())
 
@@ -112,6 +113,20 @@ for i in range(nMeses):
     almacen.append(fila_almacen)
 
 beneficioTotal=Sum(beneficio)
+
+#k aceites
+aceitesTotalesUtilizados=[]
+for m in range(nMeses):
+    sumaAceitesUsados=[]
+    for a in range(nAceites):
+        sumaAceitesUsados.append(bool2int(refinado[m][a]>0))
+
+    utilizadoMes=addsum(sumaAceitesUsados)
+    #lo guardo para la solución
+    aceitesTotalesUtilizados.append(utilizadoMes)
+
+    s.minimize(utilizadoMes)#1min
+
 # fin declaración
 
 #---------------SOFT CONSTRAINTS------------------------

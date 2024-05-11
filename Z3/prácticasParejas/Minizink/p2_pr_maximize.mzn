@@ -89,16 +89,6 @@ constraint forall(m in 2..nMeses)(
 
 constraint forall (m in 1..nMeses)(sum(a in 1..nAceites)(refinado[m,a]*VALOR-compra[m,a]*precios[m,a]-almacen[m,a]*CA)==beneficios[m]);
 
-%EXTRA
-%no se mezclan mas de k aceites
-constraint forall (m in 1..nMeses)(count(a in 1..nAceites)(refinado[m,a]>0)<=K);
-
-%utilizar un minimo de T toneladas
-constraint forall (m in 1..nMeses, a in 1..nAceites)(refinado[m,a]>0->refinado[m,a]>=T);
-
-%Si usamos el aceite ANV 1 o el aceite ANV 2 en un cierto mes, entonces VEG 2 tambi´en debe ser usado ese mes. 
-constraint forall(m in 1..nMeses)((refinado[m,nVeg+1]>0 \/ refinado[m,nVeg+2]>0) -> refinado[m,2]>0);
-
 % Función objetivo
 var int: beneficio_total;
 constraint beneficio_total == sum(m in 1..nMeses)(beneficios[m]);
