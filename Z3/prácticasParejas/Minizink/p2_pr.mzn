@@ -36,6 +36,24 @@ array [1..nMeses,1..nAceites] of var 0..MCAP: compra;
 array [1..nMeses,1..nAceites] of var 0..max(MAXN,MAXV): refinado;
 array [1..nMeses] of var -MinB..MinB: beneficios;
 
+%----------------------------------------------
+%              ASSERTS
+%----------------------------------------------
+constraint assert(nMeses > 0, "El número de meses debe ser mayor que cero");
+constraint assert(nVeg >= 0, "El número de aceites vegetales no puede ser negativo");
+constraint assert(nNoVeg >= 0, "El número de aceites no vegetales no puede ser negativo");
+constraint assert(K > 0, "El número de aceites a mezclar debe ser mayor que cero");
+constraint assert(T > 0, "El mínimo de toneladas a utilizar debe ser mayor que cero");
+constraint assert(VALOR > 0, "El valor de venta por tonelada debe ser mayor que cero");
+constraint assert(MAXV >= 0, "El máximo de toneladas de aceite vegetal a refinar por mes no puede ser negativo");
+constraint assert(MAXN >= 0, "El máximo de toneladas de aceite no vegetal a refinar por mes no puede ser negativo");
+constraint assert(MCAP > 0, "La capacidad de almacenamiento de la fábrica para cada tipo debe ser mayor que cero");
+constraint assert(CA >= 0, "Los costes de almacenamiento por tonelada y mes no pueden ser negativos");
+constraint assert(MinD >= 0, "La dureza mínima no puede ser negativa");
+constraint assert(MaxD >= MinD, "La dureza máxima no puede ser menor que la dureza mínima");
+constraint assert(MinB >= 0, "El beneficio mínimo que tenemos que conseguir no puede ser negativo");
+constraint assert(PV >= 0, "El porcentaje de variación del almacenamiento no puede ser negativo");
+
 
 %----------------------------------------------
 %              RESTRICCIONES
